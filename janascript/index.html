@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<title>Choosing the one who will face the penalty！</title>
+
+<style>
+    body {
+        background: #ffeef5;
+        text-align: center;
+        margin-top: 30px;
+        font-family: sans-serif;
+        overflow-x: hidden;
+    }
+
+    h2 {
+        font-size: 22px;
+        margin-bottom: 20px;
+    }
+
+    #gameArea {
+        display: grid;
+        grid-template-columns: repeat(5, 120px);
+        grid-template-rows: repeat(6, 120px);
+        gap: 12px;
+        justify-content: center;
+    }
+
+    .surprise-img {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        cursor: pointer;
+        animation: dance 1.2s infinite ease-in-out;
+        transition: opacity .3s, transform .3s;
+        box-shadow: 0 0 10px rgba(255, 0, 90, 0.3);
+    }
+
+    @keyframes dance {
+        0%   { transform: scale(1) rotate(0deg); }
+        25%  { transform: scale(1.06) rotate(4deg); }
+        50%  { transform: scale(0.95) rotate(-4deg); }
+        75%  { transform: scale(1.06) rotate(2deg); }
+        100% { transform: scale(1) rotate(0deg); }
+    }
+
+    /* 全画面ポップアップ */
+    #popup {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.9);
+        z-index: 999;
+        justify-content: center;
+        align-items: center;
+    }
+
+    #popupImg {
+        max-width: 95vw;
+        max-height: 80vh;
+        border-radius: 15px;
+        animation: boom 0.6s cubic-bezier(0.18,1.4,0.32,1.0);
+        box-shadow: 0 0 25px rgba(255,255,255,0.8);
+    }
+
+    @keyframes boom {
+        0%   { transform: scale(0.1) rotate(12deg); opacity: 0; }
+        50%  { transform: scale(1.3) rotate(-6deg); opacity: 1; }
+        100% { transform: scale(1) rotate(0deg); }
+    }
+
+    .choice-btn {
+        margin-top: 18px;
+        padding: 10px 25px;
+        border: none;
+        background: #ff6699;
+        color: white;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 18px;
+        box-shadow: 0 0 10px rgba(255,0,100,0.4);
+    }
+</style>
+</head>
+<body>
+
+<h2>Choosing the one who will face the penalty！</h2>
+
+<audio id="bgm" src="bgm.mp3" loop></audio>
+<audio id="surpriseSound" src="surprise.mp3" preload="auto"></audio>
+
+<div id="gameArea"></div>
+
+<!-- ポップアップ（画像 + CONTINUE のみ） -->
+<div id="popup">
+    <div>
+        <img id="popupImg" src="surprise.jpg">
+        <button id="continueBtn" class="choice-btn">CONTINUE</button>
+    </div>
+</div>
+
+<script>
+function startGame() {
+    const totalButtons = 30;
+    const gameArea = document.getElementById("gameArea");
+
+    gameArea.innerHTML = ""; 
+
+    const buttonImages = [
+        "img/button1.png",
+        "img/button2.png",
+        "img/button3.png"
+    ];
+
+    const loserIndex = Math.floor(Math.random() * totalButtons);
+
+    let bgmStarted = false;
+
+    for (let i = 0; i < totalButtons; i++) {
+
+        const img = document.createElement("img");
+        img.className = "surprise-img";
+        img.src = buttonImages[Math.floor(Math.random() * buttonImages.length)];
+        img.dataset.index = i;
+
+        img.onclick = () => {
+
+            if (!bgmStarted) {
+                document.getElementById("bgm").play();
+                bgmStarted = true;
+            }
+
+            img.style.opacity = 0;
+            img.style.transform = "scale(0.6)";
+            setTimeout(() => img.remove(), 300);
+
+            if (i == loserIndex) {
+                document.getElementById("surpriseSound").play();
+                document.getElementById("popup").style.display = "flex";
+            }
+        };
+
+        gameArea.appendChild(img);
+    }
+}
+
+startGame();
+
+// CONTINUE → ゲーム再スタート
+document.getElementById("continueBtn").onclick = () => {
+    document.getElementById("popup").style.display = "none";
+    startGame();
+};
+</script>
+
+</body>
+</html>
